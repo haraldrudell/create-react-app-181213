@@ -35,6 +35,7 @@ const socketData = {
   defaultInterface: 'localhost', // local interface ipv4+ipv6
   defaultPort: 3000,
   randomPortValue: 0,
+  firstRandomPort: 3005,
   isPort: n => (n = +n) >= 0 && n <= 65535, // verify numeric within range inclusive, NaN → false
 };
 // these interface names do both ipv4+ipv6 and detect-port-alt has special code for it
@@ -100,7 +101,10 @@ checkBrowsers(paths.appPath, isInteractive)
       socketData.isPort(DEFAULT_PORT)
         ? DEFAULT_PORT !== socketData.randomPortValue
           ? DEFAULT_PORT // provided port number good: use it
-          : detect(socketData.skipDetectArg(HOST) ? undefined : { host: HOST }) // Node.js will pick a random port number from ephemeral range
+          : detect(
+              socketData.firstRandomPort,
+              socketData.skipDetectArg(HOST) ? undefined : HOST
+            ) // free port 3005 - 3014
         : socketData.defaultPort // port empty or not a number: use 3000
   )
   .then(port => choosePort(HOST, port)) // this onFulFilled asks interactively for action if port could not be determined
